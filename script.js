@@ -166,18 +166,37 @@ document.addEventListener('DOMContentLoaded', function() {
         return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     }
 
-    // Fan Poll functionality
+    /// Fan Poll functionality
 const pollForm = document.getElementById('poll-form');
 const pollResults = document.getElementById('poll-results');
-let votes = JSON.parse(localStorage.getItem('fanPollVotes')) || {};
+
+function initializeVotes() {
+    const storedData = JSON.parse(localStorage.getItem('fanPollData')) || {};
+    const currentDate = new Date().toDateString();
+
+    if (storedData.lastResetDate !== currentDate) {
+        // It's a new day, reset the votes
+        return {
+            votes: {},
+            lastResetDate: currentDate
+        };
+    }
+    return storedData;
+}
+
+let pollData = initializeVotes();
+
+function updateLocalStorage() {
+    localStorage.setItem('fanPollData', JSON.stringify(pollData));
+}
 
 if (pollForm) {
     pollForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const playerName = document.getElementById('player-name').value;
         if (playerName) {
-            votes[playerName] = (votes[playerName] || 0) + 1;
-            localStorage.setItem('fanPollVotes', JSON.stringify(votes));
+            pollData.votes[playerName] = (pollData.votes[playerName] || 0) + 1;
+            updateLocalStorage();
             updatePollResults();
             pollForm.reset();
         }
@@ -186,7 +205,7 @@ if (pollForm) {
 
 function updatePollResults() {
     if (pollResults) {
-        const sortedVotes = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+        const sortedVotes = Object.entries(pollData.votes).sort((a, b) => b[1] - a[1]);
         pollResults.innerHTML = '<h3>Current Poll Results:</h3>';
         sortedVotes.forEach(([player, voteCount]) => {
             pollResults.innerHTML += `<p>${player}: ${voteCount} votes</p>`;
@@ -195,6 +214,7 @@ function updatePollResults() {
 }
 
 // Call updatePollResults on page load to display existing votes
+updatePollResults();
 
     // Highlight Reel Functionality
     const highlightVideos = [

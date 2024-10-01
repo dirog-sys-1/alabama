@@ -195,7 +195,7 @@ function updatePollResults() {
 }
 
 // Call updatePollResults on page load to display existing votes
-updatePollResults();
+
     // Highlight Reel Functionality
     const highlightVideos = [
         'JGwGXA7hqdg',
